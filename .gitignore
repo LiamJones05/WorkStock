@@ -1,0 +1,22 @@
+# Environment files
+.env
+.env.*
+
+# .NET
+**/bin/
+**/obj/
+
+# Node
+**/node_modules/
+
+# Build output
+**/dist/
+
+# IDE / editor
+.vs/
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
