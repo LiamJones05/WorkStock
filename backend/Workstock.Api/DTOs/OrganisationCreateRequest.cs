@@ -1,3 +1,5 @@
+namespace Workstock.Api.DTOs;
+
 public class OrganisationCreateRequest
 {
     public required string Name { get; set; }
