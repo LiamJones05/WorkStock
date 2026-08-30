@@ -6,17 +6,21 @@
 
 **Product type:** Multi-tenant SaaS web application and Progressive Web App (PWA)
 
-**Initial target:** Small repair, servicing, workshop and specialist trade businesses with approximately 1–20 employees.
+**Initial target:** Independent tradespeople and small trade businesses, including plumbers, electricians, painters/decorators, bricklayers, carpenters/joiners, builders, tilers, roofers, heating engineers, landscapers and similar job-based trades.
+
+The MVP should support both:
+- Solo tradespeople who work alone and purchase or bring the supplies required for each job.
+- Small trade businesses with a team of employees and a growing number of jobs.
 
 **Primary objective:**
 
-> Provide a simple operational system for managing customers, jobs, parts and inventory without requiring an ERP or enterprise field-service platform.
+> Provide simple job management for tradespeople without requiring a complex CRM, ERP or enterprise field-service platform.
 
-The MVP should replace fragmented operational processes such as spreadsheets, paper records, email threads and informal messaging with one coherent workflow.
+The MVP should replace fragmented operational processes such as spreadsheets, paper records, calendars, email threads, messaging apps and informal notes with one coherent workflow.
 
 The product should focus on:
 
-**Customers → Jobs → Parts → Work → Completion**
+**Customer → Site → Job → Schedule → Items Required → Work → Completion**
 
 ---
 
@@ -74,50 +78,58 @@ No separate native applications are required for the MVP.
 
 ## 3.2 Desktop experience
 
-Optimised for:
+Primarily used for:
 
 - Owners
 - Managers
-- Office staff
+- Office/admin users
 
 Typical activities:
 
-- Dashboard review
-- Customer management
-- Job management
-- Inventory management
-- Employee management
-- Document management
-- Reporting
-- Settings
+- Reviewing the schedule
+- Managing customers and sites
+- Creating and managing jobs
+- Managing employees
+- Reviewing documents and photos
+- Viewing reports
+- Organisation settings
+
+The desktop experience should prioritise efficient administration and visibility across many jobs rather than requiring every workflow to be performed from a desktop.
 
 ## 3.3 Tablet experience
 
-Designed as a practical middle ground for workshops and service environments.
+Designed for use in vans, workshops and on larger job sites.
 
 Typical activities:
 
-- Viewing jobs
+- Viewing the day's jobs
+- Opening job/site information
 - Updating status
-- Recording parts
+- Reviewing items required
 - Adding notes
 - Uploading photographs
 - Viewing documents
 
+The tablet experience should provide a larger touch interface while retaining the same operational workflows as mobile.
+
 ## 3.4 Mobile experience
 
-Optimised for technicians who are standing or moving around a work environment.
+**Mobile is a primary operational platform for the MVP.**
+
+The mobile interface is primarily intended for solo tradespeople and employees who may be working from a van, customer property or construction site.
 
 The interface should provide prominent actions such as:
 
+- View today's jobs
+- View the job/site address
 - Change status
+- View or update items required
 - Add note
-- Add part
 - Upload photo
-- View customer
+- View customer/site information
 - Complete job
 
-The mobile UI should not simply be a compressed desktop dashboard.
+The mobile UI should not simply be a compressed desktop dashboard. Common job actions should require very few taps and should remain usable while the user is standing or moving around a work environment.
 
 ## 3.5 PWA requirements
 
@@ -138,28 +150,68 @@ Full offline data synchronisation is out of scope for the MVP.
 
 # 4. Primary User Journey
 
-The core user journey is:
+The core MVP workflow is:
 
 ```text
 Customer enquiry
        ↓
-Create customer
+Create / select customer
+       ↓
+Create / select site
        ↓
 Create job
        ↓
-Assign employee
+Schedule job
        ↓
-Diagnose / perform work
+Add items required
        ↓
-Record parts
+Assign employee (if applicable)
        ↓
-Update job status
+Travel to / arrive at site
        ↓
-Complete testing
+Perform work
        ↓
-Notify customer
+Update status / add notes / photos
        ↓
 Complete job
+       ↓
+Notify customer (if applicable)
+```
+
+For a solo tradesperson, the workflow may be as simple as:
+
+```text
+Customer
+   ↓
+Site
+   ↓
+Job
+   ↓
+Items Required
+   ↓
+Buy / bring supplies
+   ↓
+Complete work
+```
+
+For a small business:
+
+```text
+Customer
+   ↓
+Site
+   ↓
+Job
+   ↓
+Schedule
+   ↓
+Employee assignment
+   ↓
+Items Required
+   ↓
+Work
+   ↓
+Completion
 ```
 
 The system should maintain relationships between:
@@ -167,12 +219,14 @@ The system should maintain relationships between:
 ```text
 Customer
    │
-   └── Job
-         ├── Employee
-         ├── Parts
-         ├── Documents
-         ├── Notes
-         └── Activity history
+   └── Sites
+         │
+         └── Jobs
+               ├── Users / Assignments
+               ├── Job Items
+               ├── Documents / Photos
+               ├── Notes
+               └── Activity history
 ```
 
 ---
@@ -188,12 +242,16 @@ Conceptually:
 ```text
 Organisation
 │
-├── Users
+├── Users / Memberships
 ├── Customers
+│   └── Sites
 ├── Jobs
-├── Inventory
-├── Documents
-├── Activities
+│   ├── Assignments
+│   ├── Items Required
+│   ├── Documents / Photos
+│   ├── Notes
+│   └── Activities
+├── Job Statuses / Types
 └── Subscription
 ```
 
@@ -204,9 +262,10 @@ All business-owned records must contain an organisation relationship.
 - Users belong to an organisation.
 - Customers belong to an organisation.
 - Jobs belong to an organisation.
-- Inventory belongs to an organisation.
+- Job items belong to jobs and therefore indirectly to an organisation.
 - Documents belong to an organisation.
 - Activity records belong to an organisation.
+- Inventory is not required for the MVP and is a future optional capability.
 - API requests must be authorised against the authenticated user's organisation.
 - Cross-tenant data access must be prevented at the application and database query level.
 
@@ -283,7 +342,7 @@ Can:
 - View relevant jobs
 - Update assigned jobs
 - Add notes
-- Add parts
+- Add items
 - Upload documents/photos
 - Change permitted statuses
 
@@ -347,7 +406,53 @@ The intended question is:
 
 ---
 
-# 9. Job Management
+# 9. Sites / Job Locations
+
+A site represents the physical location where a customer's work is carried out.
+
+This is separate from the customer because one customer may have multiple properties or job locations.
+
+## Site fields
+
+Potential fields:
+
+- Unique ID
+- Customer ID
+- Name / reference
+- Address line 1
+- Address line 2
+- City
+- County
+- Postcode
+- Country
+- Access instructions
+- Site notes
+- Created timestamp
+- Updated timestamp
+
+Example:
+
+```text
+Customer: Greenfield Property Management
+
+Site A:
+14 High Street
+
+Site B:
+82 Victoria Road
+```
+
+A site can have many jobs.
+
+```text
+Customer
+   └── Site
+        └── Jobs
+```
+
+---
+
+# 10. Job Management
 
 Jobs are the central operational entity.
 
@@ -358,11 +463,14 @@ Each job should contain:
 - Unique ID
 - Human-readable job number
 - Customer ID
+- Site ID
 - Title
 - Description
 - Status
 - Priority
-- Assigned user
+- Assigned user / assignment information
+- Scheduled start
+- Scheduled end
 - Created timestamp
 - Due date
 - Completed timestamp
@@ -377,6 +485,7 @@ Each job should contain:
 Potential fields that may be included if they prove useful:
 
 - External reference
+- Customer reference
 - Asset/device identifier
 - Serial number
 - Warranty status
@@ -385,7 +494,7 @@ These should not be expanded into a full asset-management system during the MVP.
 
 ---
 
-# 10. Job Status Workflow
+# 11. Job Status Workflow
 
 The default workflow is:
 
@@ -441,7 +550,7 @@ The MVP may allow limited customisation of statuses, but a visual workflow desig
 
 ---
 
-# 11. Job Views
+# 12. Job Views
 
 ## Desktop
 
@@ -473,7 +582,7 @@ The mobile job page should prioritise:
 3. Status
 4. Due date
 5. Assigned employee
-6. Parts
+6. Items Required
 7. Notes
 8. Documents/photos
 
@@ -481,196 +590,196 @@ Primary actions:
 
 - Change status
 - Add note
-- Add part
+- Add item
 - Upload photo
 
 ---
 
-# 12. Inventory Management
+# 12.1 Job Items — Items Required
 
-Inventory items represent physical parts, materials or consumables used by the business.
+Job Items are part of the **MVP core**.
 
-## Inventory fields
+They represent the supplies, materials, tools, equipment or other items that a tradesperson expects to need for a job.
 
-Each item should include:
-
-- ID
-- Name
-- SKU
-- Category
-- Description
-- Quantity
-- Minimum stock level
-- Unit cost
-- Supplier
-- Storage location
-- Optional barcode
-- Active status
-- Created timestamp
-- Updated timestamp
-
-Example:
-
-```text
-HDMI Port
-SKU: HDMI-001
-Stock: 42
-Minimum: 10
-Unit cost: £1.20
-Supplier: Example Electronics
-```
-
----
-
-# 13. Inventory Movements
-
-Inventory should use movement records rather than silently changing quantities.
-
-Examples:
-
-```text
-+50  Purchase received
--1   Used on JOB-00142
--3   Manual adjustment
-+20  Stock delivery
-```
-
-## Inventory movement fields
-
-Potential fields:
-
-- ID
-- Inventory item ID
-- Organisation ID
-- Quantity change
-- Movement type
-- Reference type
-- Reference ID
-- User ID
-- Timestamp
-- Notes
-
-Possible movement types:
-
-- Purchase
-- Job consumption
-- Manual adjustment
-- Stock correction
-- Return
-
-This creates an audit trail for inventory.
-
----
-
-# 14. Jobs and Parts
-
-Users must be able to associate inventory items with jobs.
+A Job Item does **not** require a stock record.
 
 Example:
 
 ```text
 JOB-00142
 
-Screen              ×1
-Adhesive            ×1
-Thermal paste       ×0.1
+Items Required
+-------------------------
+22mm copper pipe     3m
+22mm elbow            4
+Isolation valve       1
+PTFE tape             1 pack
 ```
 
-The job-part record should contain enough information to establish:
+## Job item fields
 
-- Which job consumed the part
-- Which inventory item was consumed
-- How much was consumed
-- Who recorded it
-- When it was recorded
+Each Job Item should contain:
 
-The system should then create the corresponding inventory movement.
+- Unique ID
+- Job ID
+- Name
+- Quantity
+- Unit
+- Notes
+- Created timestamp
+- Updated timestamp
 
-Example:
+The `Unit` should support common trade usage such as:
+
+- item
+- metre
+- length
+- box
+- pack
+- litre
+- kg
+
+A tradesperson can therefore use Workstock without maintaining any inventory.
+
+## Future inventory integration
+
+In a future version, a Job Item may optionally reference an Inventory Item:
 
 ```text
-HDMI Ports
-42 → 41
-
-Movement:
--1
-Reason: JOB-00142 consumption
+JobItem
+   │
+   └── InventoryItemId (optional)
 ```
 
-The implementation must account for insufficient stock and invalid quantities.
+This preserves the same workflow while allowing businesses with stock to add inventory tracking later.
 
 ---
 
-# 15. Low-Stock Alerts
+# 13. Inventory Management — Future Capability
 
-Every inventory item may define a minimum stock threshold.
+Inventory is intentionally **not part of the MVP**.
 
-The system should identify:
+The MVP should work for a solo tradesperson who has no formal inventory system and simply needs to record what supplies, materials or other items are required for a job.
 
-- Low-stock items
-- Out-of-stock items
+A future inventory capability may allow organisations to create reusable inventory items, maintain stock levels and link job items to stock.
 
-Example:
+Inventory should therefore be treated as an optional extension rather than a prerequisite for using Workstock.
+
+---
+
+# 14. Inventory Movements — Future Capability
+
+Inventory movement tracking is also out of scope for the MVP.
+
+A future implementation may record events such as:
+
+```text
++50  Purchase received
+-1   Used on JOB-00142
+-3   Manual adjustment
+```
+
+This future capability should build on the existing job-item model rather than replacing it.
+
+---
+
+# 15. Jobs and Inventory — Future Capability
+
+The MVP's Job Item is deliberately independent of inventory.
+
+MVP:
+
+```text
+Job
+ └── JobItem
+       ├── Name
+       ├── Quantity
+       ├── Unit
+       └── Notes
+```
+
+Future:
+
+```text
+Job
+ └── JobItem
+       ├── Name
+       ├── Quantity
+       ├── Unit
+       ├── Notes
+       └── InventoryItemId (optional)
+```
+
+This allows the same Workstock job to work for both:
+
+- A solo tradesperson who buys or brings supplies as needed.
+- A small business that keeps stock and wants to allocate materials to jobs.
+
+---
+
+# 16. Low-Stock Alerts — Future Capability
+
+Low-stock alerts are not part of the MVP.
+
+They become relevant when an organisation enables the future inventory capability.
+
+Potential future behaviour:
 
 ```text
 LOW STOCK
 
-HDMI Ports
-7 remaining
-Minimum: 10
+22mm copper pipe
+8m remaining
+Minimum: 10m
 ```
 
-The dashboard should surface these items.
+The existing Job Item model should remain usable without this capability.
 
 ---
 
-# 16. Dashboard
+# 17. Dashboard and Schedule
 
-The dashboard should answer:
+The dashboard should primarily answer:
 
-> **"What needs attention?"**
+> **"What do I need to do today?"**
 
-## Example overview
+For tradespeople, the schedule is more important than a traditional business KPI dashboard.
+
+## Example
 
 ```text
-17
-Open Jobs
+Wednesday 26 August
 
-4
-Due Today
+08:00
+Boiler Repair
+Sarah Smith
+12 High Street
+Scheduled
 
-7
-Awaiting Parts
+10:30
+Repaint Hallway
+John Smith
+45 Elm Road
+Scheduled
 
-3
-Low Stock
-
-2
-Ready for Collection
+13:00
+Door Installation
+82 Victoria Road
+In Progress
 ```
 
-## Jobs requiring attention
+The dashboard should surface:
 
-Prioritise:
-
+- Today's jobs
+- Upcoming jobs
 - Overdue jobs
-- Jobs due today
-- High-priority jobs
 - Jobs awaiting action
-- Jobs waiting for parts
+- Jobs awaiting customer approval
+- Jobs recently completed
 
-## Inventory alerts
+Basic metrics may still be shown, but operational scheduling should be the primary focus.
 
-Show:
-
-- Low-stock items
-- Out-of-stock items
-
-The MVP dashboard should remain operational rather than becoming a complete BI platform.
-
----
-
-# 17. Search
+# 18. Search
 
 A global search should support:
 
@@ -704,7 +813,7 @@ The search implementation should prioritise speed and usefulness over sophistica
 
 ---
 
-# 18. Documents and Attachments
+# 19. Documents and Attachments
 
 Documents can be associated with customers or jobs.
 
@@ -735,7 +844,7 @@ PostgreSQL should store metadata and references rather than large binary files.
 
 ---
 
-# 19. Mobile Photo Upload
+# 20. Mobile Photo Upload
 
 Mobile/tablet users should be able to capture or select images directly from the device and attach them to a job.
 
@@ -759,7 +868,7 @@ This is particularly relevant for repair and servicing environments.
 
 ---
 
-# 20. Customer Communication
+# 21. Customer Communication
 
 The MVP should support basic email notifications.
 
@@ -793,7 +902,7 @@ SMS, WhatsApp and other channels are future features.
 
 ---
 
-# 21. Activity History
+# 22. Activity History
 
 Important actions should create activity records.
 
@@ -833,7 +942,7 @@ The purpose is operational visibility and accountability.
 
 ---
 
-# 22. Responsive Design Requirements
+# 23. Responsive Design Requirements
 
 The application must be usable at:
 
@@ -861,7 +970,7 @@ Prioritise rapid interaction for:
 - Job details
 - Status changes
 - Notes
-- Parts
+- Items Required
 - Photos
 - Customer details
 
@@ -869,7 +978,7 @@ The responsive implementation should avoid requiring horizontal scrolling for no
 
 ---
 
-# 23. PWA Requirements
+# 24. PWA Requirements
 
 The MVP PWA should provide:
 
@@ -902,7 +1011,7 @@ with queued changes and conflict resolution.
 
 ---
 
-# 24. Subscription Architecture
+# 25. Subscription Architecture
 
 The MVP should support plan-based limits even if the payment system is introduced incrementally.
 
@@ -913,7 +1022,7 @@ Initial proposed limits:
 - 1 user
 - 25 active jobs
 - 50 customers
-- 100 inventory items
+- 100 job items across active jobs
 - 1 GB storage
 - Basic dashboard
 
@@ -928,7 +1037,7 @@ Potential entitlements:
 - 5 users
 - Unlimited jobs
 - Unlimited customers
-- Unlimited inventory
+- Unlimited job items
 - Email notifications
 - Higher storage limit
 - Advanced filtering/reporting
@@ -952,7 +1061,7 @@ Pricing is provisional and must be validated.
 
 ---
 
-# 25. Billing
+# 26. Billing
 
 A payment provider such as Stripe can be introduced for subscription billing.
 
@@ -974,36 +1083,41 @@ Entitlement checks must occur server-side.
 
 ---
 
-# 26. Data Model
+# 27. Data Model
 
 An initial logical model is:
 
 ```text
 organisations
     │
-    ├── users
+    ├── users / memberships
     │
     ├── customers
-    │       └── jobs
-    │              ├── job_parts
-    │              ├── documents
-    │              └── activities
+    │       └── sites
+    │              └── jobs
+    │                     ├── job_assignments
+    │                     ├── job_items
+    │                     ├── documents
+    │                     ├── notes
+    │                     └── activities
     │
-    ├── inventory_items
-    │       └── inventory_movements
-    │
+    ├── job_statuses
+    ├── job_types
     ├── documents
-    │
     ├── activities
-    │
     └── subscriptions
+
+Future / optional:
+    ├── inventory_items
+    ├── inventory_movements
+    └── suppliers
 ```
 
 Potential table definitions should be refined during implementation.
 
 ---
 
-# 27. API Structure
+# 28. API Structure
 
 A REST API is sufficient for the MVP.
 
@@ -1038,11 +1152,11 @@ Potential endpoints:
     PATCH /:id
     DELETE /:id
     POST /:id/status
-    POST /:id/parts
+    POST /:id/items
     POST /:id/notes
     POST /:id/documents
 
-/api/inventory
+/api/inventory  # future capability
     GET /
     GET /:id
     POST /
@@ -1072,7 +1186,7 @@ Exact API design should be established before implementation.
 
 ---
 
-# 28. Validation and Error Handling
+# 29. Validation and Error Handling
 
 All API input must be validated server-side.
 
@@ -1083,7 +1197,7 @@ Validation should cover:
 - Email addresses
 - Dates
 - Numeric values
-- Inventory quantities
+- Job item quantities
 - Valid IDs
 - Ownership/tenant access
 - Allowed status transitions where applicable
@@ -1094,7 +1208,7 @@ Sensitive implementation details must not be exposed in production error message
 
 ---
 
-# 29. Security Requirements
+# 30. Security Requirements
 
 Security is important because the product will contain business data.
 
@@ -1122,7 +1236,7 @@ A user should never be able to supply an arbitrary organisation/customer/job ID 
 
 ---
 
-# 30. Out of Scope
+# 31. Out of Scope
 
 The MVP explicitly excludes:
 
@@ -1156,6 +1270,17 @@ The MVP explicitly excludes:
 - WhatsApp
 - Live customer chat
 
+### Optional future capabilities
+
+The following are intentionally deferred until demand is validated:
+
+- Inventory management
+- Inventory movements
+- Supplier management
+- Stock levels
+- Low-stock alerts
+- Barcode scanning
+
 ### Intelligence
 
 - AI assistant
@@ -1175,7 +1300,7 @@ These should only be introduced based on validated demand.
 
 ---
 
-# 31. Suggested Development Phases
+# 32. Suggested Development Phases
 
 ## Phase 1 — Foundation
 
@@ -1217,14 +1342,13 @@ These should only be introduced based on validated demand.
 - Job detail page
 - Activity records
 
-## Phase 5 — Inventory
+## Phase 5 — Sites and Job Items
 
-- Inventory CRUD
-- Stock levels
-- Stock movements
-- Job parts
-- Automatic consumption
-- Low-stock alerts
+- Site CRUD
+- Site/customer/job relationships
+- Job item / items-required CRUD
+- Job item quantities and units
+- Mobile job-item workflow
 
 ## Phase 6 — Documents
 
@@ -1276,7 +1400,7 @@ These should only be introduced based on validated demand.
 
 ---
 
-# 32. MVP Acceptance Criteria
+# 33. MVP Acceptance Criteria
 
 The MVP should not be considered complete merely because every screen exists.
 
@@ -1289,23 +1413,22 @@ A business should be able to perform the following without manual database inter
 5. Assign the job to an employee.
 6. Update the job status.
 7. Add notes and documents.
-8. Add inventory items.
-9. Associate inventory with a job.
-10. Record part consumption.
-11. See the inventory quantity change.
-12. See low-stock warnings.
-13. View relevant job/customer activity.
-14. Search for customers, jobs and inventory.
-15. Use the main technician workflow from a phone/tablet.
-16. Upload a photograph from a mobile device.
-17. Send a basic customer email.
-18. Enforce organisation-level permissions.
-19. Prevent cross-tenant data access.
-20. Restrict features according to subscription entitlements.
+8. Add items required to a job.
+9. Update and review required items on mobile/tablet.
+10. Schedule jobs and view the day's work.
+11. View relevant job/customer/site activity.
+12. Search for customers, jobs and sites.
+13. Upload job photographs/documents.
+14. Use the main tradesperson workflow from a phone/tablet.
+15. Upload a photograph from a mobile device.
+16. Send a basic customer email.
+17. Enforce organisation-level permissions.
+18. Prevent cross-tenant data access.
+19. Restrict features according to subscription entitlements.
 
 ---
 
-# 33. Validation Targets
+# 34. Validation Targets
 
 The first goal is not scale.
 
@@ -1351,11 +1474,14 @@ Secondary questions:
 
 ---
 
-# 34. V2 Candidates
+# 35. V2 Candidates
 
 Only after MVP validation, investigate:
 
 - Customer portal
+- Inventory management
+- Stock tracking and low-stock alerts
+- Supplier management
 - Barcode scanning
 - Offline technician mode
 - Quotes
@@ -1376,16 +1502,18 @@ These are potential extensions rather than commitments.
 
 ---
 
-# 35. Long-Term Product Direction
+# 36. Long-Term Product Direction
 
 The long-term product could evolve from:
 
 ```text
 Customers
    +
+Sites
+   +
 Jobs
    +
-Inventory
+Job Items
 ```
 
 into:
@@ -1416,13 +1544,13 @@ into:
 
 The long-term proposition is:
 
-> **The operating system for small operational businesses.**
+> **Simple job management for tradespeople, with optional business capabilities as they grow.**
 
 The MVP should resist trying to become this entire platform immediately.
 
 ---
 
-# 36. Non-Goals for Product Design
+# 37. Non-Goals for Product Design
 
 The product should not compete by having more buttons or more modules.
 
@@ -1441,10 +1569,10 @@ A business should be able to start using Workstock without training sessions or 
 
 ---
 
-# 37. Initial Product Success Definition
+# 38. Initial Product Success Definition
 
 The MVP is successful when a small business can say:
 
-> **"We used to manage this in Excel and WhatsApp. Now we use Workstock."**
+> **"I used to manage my jobs across WhatsApp, my calendar and notes. Now I use Workstock."**
 
 That is the key outcome the first release should optimise for.

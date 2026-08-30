@@ -173,7 +173,7 @@ The planned architecture is:
                │ HTTPS / REST
                ▼
 ┌──────────────────────────────┐
-│ Node.js / Express API        │
+│ ASP.NET Core REST API        │
 │ Authentication               │
 │ Authorisation                │
 │ Business Logic               │
@@ -203,8 +203,8 @@ The planned architecture is:
 
 **Backend**
 
-- Node.js
-- Express
+- ASP.NET Core
+- Entity Framework Core
 - REST API
 - Server-side validation
 - Authentication and authorisation
@@ -442,7 +442,7 @@ The long-term direction is:
 
 ## Project Status
 
-**Current status:** Product concept / pre-development
+**Current status:** MVP foundation implemented. The customer/site/job workflow, tenant-aware API, role checks, sessions, audit history, document upload foundation, PWA shell and Docker development stack are present; see [`docs/architecture.md`](./docs/architecture.md) for setup, deployment and the intentionally deferred data model.
 
 The project is currently at the product-definition stage. The MVP specification should be treated as the primary scope reference before implementation begins.
 

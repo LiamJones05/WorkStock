@@ -11,6 +11,7 @@
 
 # Build output
 **/dist/
+**/App_Data/
 
 # IDE / editor
 .vs/
